@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelNOW!</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 para alertas bonitas -->
+</head>
+<body>
+    <video id="background-video" autoplay muted loop>
+        <source src="videos/fondo.mp4" type="video/mp4">
+        Tu navegador no soporta videos HTML5.
+    </video>
+
+    <header id="header-container">
+        <div class="offer-container">
+            <div id="left-offer" class="offer"></div>
+        </div>
+        <h1 id="titulo">TravelNOW!</h1>
+        <div class="offer-container">
+            <div id="right-offer" class="offer"></div>
+        </div>
+    </header>
+
+    <main>
+        <section id="search-section">
+            <div class="search-container">
+                <!-- 🔹 Formulario con conexión a Backend.php -->
+                <form id="search-form" action="Backend.php" method="POST" onsubmit="return validateForm()">
+                    <input type="hidden" name="csrf_token" id="csrf_token"> <!-- Token CSRF -->
+                    <label for="destination">Destino:</label>
+                    <input type="text" id="destination" name="destino" required autocomplete="off">
+                    <div id="suggestions" class="suggestions-container"></div>
+
+                    <label for="travel-date">Fecha de viaje:</label>
+                    <input type="date" id="travel-date" name="fecha" required>
+
+                    <button type="submit" id="search-button">Buscar</button>
+                </form>
+            </div>
+
+            <!-- 🔹 Contenedor flotante para mostrar los resultados -->
+            <div id="results-container" class="result-container">
+                <h2 id="result-title"></h2>
+                <div id="flights-container">
+                    <h3>Vuelos Disponibles</h3>
+                    <div id="flights-results"></div>
+                </div>
+                <div id="hotels-container">
+                    <h3>Hoteles Recomendados</h3>
+                    <div id="hotels-results"></div>
+                </div>
+                <button class="buy-button" id="buy-button">¡Lo quiero!</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 TravelNOW! Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Generar y asignar el token CSRF al formulario
+        document.addEventListener("DOMContentLoaded", () => {
+            const csrfToken = "<?php echo $_SESSION['token']; ?>"; // Obtener el token CSRF de la sesión
+            document.getElementById("csrf_token").value = csrfToken;
+        });
+
+        function validateForm() {
+            let destino = document.getElementById("destination").value.trim();
+            let fecha = document.getElementById("travel-date").value;
+
+            if (destino === "" || fecha === "") {
+                Swal.fire({
+                    title: "TravelNOW!",
+                    text: "Por favor, ingresa un destino y una fecha de viaje.",
+                    icon: "warning",
+                    confirmButtonText: "Aceptar"
+                });
+                return false;
+            }
+
+            // 🔹 Validar que la fecha sea mayor a la fecha actual
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(fecha);
+
+            if (selectedDate <= today) {
+                Swal.fire({
+                    title: "TravelNOW!",
+                    text: "La fecha de viaje debe ser posterior al día de hoy. Por favor, elige otra fecha.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar"
+                });
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
